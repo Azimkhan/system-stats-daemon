@@ -11,20 +11,20 @@ import (
 
 func NewLoadAverageCollector() LoadAverageCollector {
 	return &LoadAverageCollectorImpl{
-		command: sysctlCommand,
+		executeCommand: executeSysctl,
 	}
 }
 
 type LoadAverageCollectorImpl struct {
-	command func() ([]byte, error)
+	executeCommand func() ([]byte, error)
 }
 
-func sysctlCommand() ([]byte, error) {
+func executeSysctl() ([]byte, error) {
 	return exec.Command("sysctl", "-n", "vm.loadavg").Output()
 }
 
 func (l *LoadAverageCollectorImpl) Collect() (*core.CPULoadAverage, error) {
-	output, err := l.command()
+	output, err := l.executeCommand()
 	if err != nil {
 		return nil, err
 	}
