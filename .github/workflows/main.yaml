@@ -1,0 +1,21 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run tests on Linux
+        run: |
+          GOOS=linux go test ./...
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run tests on macOS
+        run: |
+          GOOS=darwin go test ./...
