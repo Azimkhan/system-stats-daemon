@@ -1,6 +1,8 @@
 on:
   workflow_dispatch:
 
+  push:
+
 jobs:
   test-linux:
     runs-on: ubuntu-latest
