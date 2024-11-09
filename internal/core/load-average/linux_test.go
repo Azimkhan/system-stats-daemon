@@ -13,6 +13,6 @@ func TestLoadAverageCollector_Collect(t *testing.T) {
 			return []byte(""), nil
 		},
 	}
-	res, err := collector.Collect()
+	_, err := collector.Collect()
 	require.NoError(t, err)
 }
