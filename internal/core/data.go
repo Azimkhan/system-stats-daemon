@@ -14,7 +14,17 @@ type CPUCurrentUsage struct {
 	System float32
 }
 
+type DiskIORow struct {
+	Device     string
+	TPS        float32
+	Throughput float32
+}
+type DiskIO struct {
+	Rows []DiskIORow
+}
+
 type Stats struct {
 	CPULoadAverage  *CPULoadAverage
 	CPUCurrentUsage *CPUCurrentUsage
+	DiskLoad        *DiskIO
 }
