@@ -9,10 +9,10 @@ import (
 
 func TestLoadAverageCollector_Collect(t *testing.T) {
 	collector := LoadAverageCollectorImpl{
-		command: func() ([]byte, error) {
+		executeCommand: func() ([]byte, error) {
 			return []byte(""), nil
 		},
 	}
-	res, err := collector.Collect()
+	_, err := collector.Collect()
 	require.NoError(t, err)
 }
