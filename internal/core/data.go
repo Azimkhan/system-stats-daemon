@@ -5,7 +5,7 @@ type CPULoadAverageRow struct {
 	Value      float32
 }
 type CPULoadAverage struct {
-	Rows []CPULoadAverageRow
+	Rows []*CPULoadAverageRow
 }
 
 type CPUCurrentUsage struct {
@@ -20,7 +20,7 @@ type DiskIORow struct {
 	Throughput float32
 }
 type DiskIO struct {
-	Rows []DiskIORow
+	Rows []*DiskIORow
 }
 
 type Stats struct {

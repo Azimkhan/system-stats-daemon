@@ -32,7 +32,7 @@ func TestDiskIOCollectorImpl_Collect(t *testing.T) {
 				},
 			},
 			want: &core.DiskIO{
-				Rows: []core.DiskIORow{
+				Rows: []*core.DiskIORow{
 					{
 						Device:     "disk0",
 						TPS:        224,
