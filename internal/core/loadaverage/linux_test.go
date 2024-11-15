@@ -5,9 +5,8 @@ package loadaverage
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadAverageCollector_Collect(t *testing.T) {

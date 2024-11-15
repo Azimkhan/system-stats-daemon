@@ -5,9 +5,8 @@ package diskio
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
+	"github.com/stretchr/testify/require"
 )
 
 const exampleOutput = `Linux 6.10.4-linuxkit (af4940bdc5a0)    11/10/24        _aarch64_       (10 CPU)
