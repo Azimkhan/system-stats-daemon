@@ -18,4 +18,4 @@ jobs:
           go-version: '1.23'
       - run: go version
       - name: Run tests
-        run: go test ./...
+        run: go test ./... --count=1
