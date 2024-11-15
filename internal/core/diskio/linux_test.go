@@ -5,6 +5,8 @@ package diskio
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 

@@ -5,9 +5,8 @@ package diskio
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
+	"github.com/stretchr/testify/require"
 )
 
 const exampleOutput = `disk0               disk4               disk5
