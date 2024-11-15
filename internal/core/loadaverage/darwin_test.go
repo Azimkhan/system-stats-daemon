@@ -16,7 +16,7 @@ func TestLoadAverageCollector_Collect(t *testing.T) {
 		},
 	}
 	expected := &core.CPULoadAverage{
-		Rows: []core.CPULoadAverageRow{
+		Rows: []*core.CPULoadAverageRow{
 			{
 				MinutesAgo: 1,
 				Value:      2.96,

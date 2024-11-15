@@ -30,18 +30,22 @@ func (l *CollectorImpl) Collect() (*core.CPULoadAverage, error) {
 		return nil, err
 	}
 	// parse a string like { 2.51 2.72 2.84 }\n
-	myStr := strings.Trim(string(output), "{} \n")
-	var rows [3]core.CPULoadAverageRow
-	for i, v := range strings.Split(myStr, " ") {
+	rawStr := strings.Trim(string(output), "{} \n")
+	parts := strings.Split(rawStr, " ")
+	if len(parts) != 3 {
+		return nil, ErrorInvalidOutput
+	}
+	rows := make([]*core.CPULoadAverageRow, 3)
+	for i, v := range parts {
 		minutesAgo := []int{1, 5, 15}[i]
 		f, err := strconv.ParseFloat(v, 32)
 		if err != nil {
 			return nil, err
 		}
-		rows[i] = core.CPULoadAverageRow{
+		rows[i] = &core.CPULoadAverageRow{
 			MinutesAgo: minutesAgo,
 			Value:      float32(f),
 		}
 	}
-	return &core.CPULoadAverage{Rows: rows[:]}, nil
+	return &core.CPULoadAverage{Rows: rows}, nil
 }

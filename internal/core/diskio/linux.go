@@ -43,7 +43,7 @@ func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
 	}
 
 	// get stats
-	var rows []core.DiskIORow
+	rows := make([]*core.DiskIORow, 0, len(lines)-3)
 	for _, line := range lines[3:] {
 		fields := strings.Fields(line)
 		if len(fields) != len(headerLine) {
@@ -63,7 +63,7 @@ func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
 			return nil, err
 		}
 		totalThroughput := readThroughput + writeThroughput
-		row := core.DiskIORow{
+		row := &core.DiskIORow{
 			Device:     fields[headerIndexes["Device"]],
 			TPS:        float32(tps),
 			Throughput: float32(totalThroughput),

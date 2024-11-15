@@ -39,7 +39,7 @@ func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
 	diskNames := strings.Fields(lines[0])
 
 	// get stats
-	var rows []core.DiskIORow
+	rows := make([]*core.DiskIORow, 0, len(diskNames))
 	for _, line := range lines[2:] {
 		fields := strings.Fields(line)
 		if len(fields) != len(diskNames)*3 {
@@ -55,7 +55,7 @@ func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
 			if err != nil {
 				return nil, err
 			}
-			row := core.DiskIORow{
+			row := &core.DiskIORow{
 				Device:     diskNames[i],
 				TPS:        float32(tps),
 				Throughput: float32(kps),

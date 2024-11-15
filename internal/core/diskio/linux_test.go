@@ -3,11 +3,10 @@
 package diskio
 
 import (
-	"errors"
-	"reflect"
 	"testing"
 
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
+	"github.com/stretchr/testify/require"
 )
 
 const exampleOutput = `Linux 6.10.4-linuxkit (af4940bdc5a0)    11/10/24        _aarch64_       (10 CPU)
@@ -34,7 +33,7 @@ func TestDiskIOCollectorImpl_Collect(t *testing.T) {
 				},
 			},
 			want: &core.DiskIO{
-				Rows: []core.DiskIORow{
+				Rows: []*core.DiskIORow{
 					{
 						Device:     "vda",
 						TPS:        14.08,
@@ -65,13 +64,10 @@ func TestDiskIOCollectorImpl_Collect(t *testing.T) {
 				executeCommand: tt.fields.executeCommand,
 			}
 			got, err := d.Collect()
-			if err != nil && !errors.Is(err, tt.wantErr) {
-				t.Errorf("Collect() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			if err != nil {
+				require.ErrorIs(t, err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Collect() got = %v, want %v", got, tt.want)
-			}
+			require.Equal(t, got, tt.want)
 		})
 	}
 }
