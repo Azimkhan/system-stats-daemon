@@ -1,2 +1,9 @@
+name: system-stats-test
 services:
-  image:
+  test:
+    build:
+      context: ..
+      dockerfile: Dockerfile_test
+    volumes:
+      - ..:/code
+    command: "go test ./internal/... -v --count=1"
