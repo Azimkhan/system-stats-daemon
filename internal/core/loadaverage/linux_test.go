@@ -1,14 +1,15 @@
 //go:build linux
 
-package load_average
+package loadaverage
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadAverageCollector_Collect(t *testing.T) {
-	collector := LoadAverageCollectorImpl{
+	collector := CollectorImpl{
 		executeCommand: func() ([]byte, error) {
 			return []byte(""), nil
 		},

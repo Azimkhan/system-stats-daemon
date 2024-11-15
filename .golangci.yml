@@ -6,19 +6,31 @@ linters-settings:
     lines: 150
     statements: 80
 
+  depguard:
+    rules:
+      main:
+        list-mode: strict
+        files:
+          - "cmd/**"
+        allow:
+          - $gostd
+          - github.com/Azimkhan
+
+
 linters:
   disable-all: true
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
+#    - deadcode # inactive
     - depguard
     - dogsled
     - dupl
     - durationcheck
     - errorlint
     - exhaustive
-    - exportloopref
+#    - exportloopref
+    - copyloopvar
     - funlen
     - gci
     - gocognit
@@ -35,7 +47,7 @@ linters:
     - gosec
     - gosimple
     - govet
-    - ifshort
+#    - ifshort # inactive
     - importas
     - ineffassign
     - lll
@@ -51,7 +63,7 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
+#    - structcheck # inactive
     - stylecheck
     - tagliatelle
     - thelper
@@ -60,6 +72,6 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
+#    - varcheck # inactive
     - wastedassign
     - whitespace

@@ -1,15 +1,16 @@
 //go:build darwin
 
-package load_average
+package loadaverage
 
 import (
+	"testing"
+
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestLoadAverageCollector_Collect(t *testing.T) {
-	collector := LoadAverageCollectorImpl{
+	collector := CollectorImpl{
 		executeCommand: func() ([]byte, error) {
 			return []byte("{ 2.96 4.09 3.86 }\n"), nil
 		},

@@ -1,0 +1,22 @@
+FROM ubuntu:24.04
+RUN apt update && apt install -y curl
+
+# install go 1.23
+ARG GO_VERSION=1.23.3
+
+
+# Detect architecture, download and install the corresponding Go binary
+RUN ARCH=$(dpkg --print-architecture) && \
+    case "$ARCH" in \
+      "amd64") ARCH="amd64" ;; \
+      "arm64") ARCH="arm64" ;; \
+      *) echo "Unsupported architecture"; exit 1 ;; \
+    esac && \
+    curl -OL https://golang.org/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-${ARCH}.tar.gz && \
+    rm go${GO_VERSION}.linux-${ARCH}.tar.gz
+
+RUN ln -s /usr/local/go/bin/go /usr/local/bin/go
+
+
+WORKDIR /code

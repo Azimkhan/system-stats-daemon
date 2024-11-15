@@ -1,7 +1,7 @@
-package load_average
+package loadaverage
 
 import "github.com/Azimkhan/system-stats-daemon/internal/core"
 
-type LoadAverageCollector interface {
+type Collector interface {
 	Collect() (*core.CPULoadAverage, error)
 }

@@ -1,21 +1,22 @@
 //go:build darwin
 
-package load_average
+package loadaverage
 
 import (
-	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
-func NewLoadAverageCollector() LoadAverageCollector {
-	return &LoadAverageCollectorImpl{
+func NewCollector() Collector {
+	return &CollectorImpl{
 		executeCommand: executeSysctl,
 	}
 }
 
-type LoadAverageCollectorImpl struct {
+type CollectorImpl struct {
 	executeCommand func() ([]byte, error)
 }
 
@@ -23,7 +24,7 @@ func executeSysctl() ([]byte, error) {
 	return exec.Command("sysctl", "-n", "vm.loadavg").Output()
 }
 
-func (l *LoadAverageCollectorImpl) Collect() (*core.CPULoadAverage, error) {
+func (l *CollectorImpl) Collect() (*core.CPULoadAverage, error) {
 	output, err := l.executeCommand()
 	if err != nil {
 		return nil, err
@@ -41,7 +42,6 @@ func (l *LoadAverageCollectorImpl) Collect() (*core.CPULoadAverage, error) {
 			MinutesAgo: minutesAgo,
 			Value:      float32(f),
 		}
-
 	}
 	return &core.CPULoadAverage{Rows: rows[:]}, nil
 }

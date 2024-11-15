@@ -1,12 +1,13 @@
 //go:build darwin
 
-package disk_io
+package diskio
 
 import (
 	"errors"
-	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"reflect"
 	"testing"
+
+	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
 const exampleOutput = `disk0               disk4               disk5
@@ -58,12 +59,12 @@ func TestDiskIOCollectorImpl_Collect(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: InvalidOutputError,
+			wantErr: ErrorInvalidOutput,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &DiskIOCollectorImpl{
+			d := &CollectorImpl{
 				executeCommand: tt.fields.executeCommand,
 			}
 			got, err := d.Collect()

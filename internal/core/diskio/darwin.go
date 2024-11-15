@@ -1,18 +1,30 @@
 //go:build darwin
 
-package disk_io
+package diskio
 
 import (
-	"github.com/Azimkhan/system-stats-daemon/internal/core"
+	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
-type DiskIOCollectorImpl struct {
+func NewCollector() Collector {
+	return &CollectorImpl{
+		executeCommand: executeIostat,
+	}
+}
+
+func executeIostat() ([]byte, error) {
+	return exec.Command("iostat", "-d").Output()
+}
+
+type CollectorImpl struct {
 	executeCommand func() ([]byte, error)
 }
 
-func (d *DiskIOCollectorImpl) Collect() (*core.DiskIO, error) {
+func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
 	output, err := d.executeCommand()
 	if err != nil {
 		return nil, err
@@ -20,7 +32,7 @@ func (d *DiskIOCollectorImpl) Collect() (*core.DiskIO, error) {
 
 	lines := strings.Split(string(output), "\n")
 	if len(lines) < 3 {
-		return nil, InvalidOutputError
+		return nil, ErrorInvalidOutput
 	}
 
 	// get disk names
@@ -35,7 +47,6 @@ func (d *DiskIOCollectorImpl) Collect() (*core.DiskIO, error) {
 		}
 
 		for i := 0; i < len(diskNames); i++ {
-
 			tps, err := strconv.ParseFloat(fields[i*3+1], 32)
 			if err != nil {
 				return nil, err

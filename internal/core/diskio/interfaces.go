@@ -1,14 +1,13 @@
-package disk_io
+package diskio
 
 import (
 	"errors"
+
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
-var (
-	InvalidOutputError = errors.New("invalid command output")
-)
+var ErrorInvalidOutput = errors.New("invalid command output")
 
-type DiskIOCollector interface {
+type Collector interface {
 	Collect() (*core.DiskIO, error)
 }
