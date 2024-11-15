@@ -15,16 +15,16 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Linters
-        uses: golangci/golangci-lint-action@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.61.0
+          version: v1.61
 
   test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
