@@ -10,7 +10,7 @@ import (
 )
 
 func TestLoadAverageCollector_Collect(t *testing.T) {
-	collector := CollectorImpl{
+	collector := Collector{
 		executeCommand: func() ([]byte, error) {
 			return []byte("{ 2.96 4.09 3.86 }\n"), nil
 		},

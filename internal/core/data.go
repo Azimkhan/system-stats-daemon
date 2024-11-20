@@ -1,7 +1,7 @@
 package core
 
 type CPULoadAverageRow struct {
-	MinutesAgo int
+	MinutesAgo uint32
 	Value      float32
 }
 type CPULoadAverage struct {

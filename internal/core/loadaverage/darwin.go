@@ -10,13 +10,13 @@ import (
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
-func NewCollector() Collector {
-	return &CollectorImpl{
+func NewCollector() *Collector {
+	return &Collector{
 		executeCommand: executeSysctl,
 	}
 }
 
-type CollectorImpl struct {
+type Collector struct {
 	executeCommand func() ([]byte, error)
 }
 
@@ -24,7 +24,7 @@ func executeSysctl() ([]byte, error) {
 	return exec.Command("sysctl", "-n", "vm.loadavg").Output()
 }
 
-func (l *CollectorImpl) Collect() (*core.CPULoadAverage, error) {
+func (l *Collector) Collect() (*core.CPULoadAverage, error) {
 	output, err := l.executeCommand()
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (l *CollectorImpl) Collect() (*core.CPULoadAverage, error) {
 	}
 	rows := make([]*core.CPULoadAverageRow, 3)
 	for i, v := range parts {
-		minutesAgo := []int{1, 5, 15}[i]
+		minutesAgo := []uint32{1, 5, 15}[i]
 		f, err := strconv.ParseFloat(v, 32)
 		if err != nil {
 			return nil, err
