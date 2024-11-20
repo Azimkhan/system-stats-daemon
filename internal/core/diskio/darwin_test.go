@@ -63,7 +63,7 @@ func TestDiskIOCollectorImpl_Collect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &CollectorImpl{
+			d := &Collector{
 				executeCommand: tt.fields.executeCommand,
 			}
 			got, err := d.Collect()

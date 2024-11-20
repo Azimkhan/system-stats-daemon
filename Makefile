@@ -1,4 +1,12 @@
 
+generate:
+	mkdir -p gen/systemstats/pb
+	protoc \
+		--proto_path=api \
+		--go_out=gen/systemstats/pb \
+		--go-grpc_out=gen/systemstats/pb \
+		api/*.proto
+
 test-local:
 	go test -race ./internal/... --count=1
 

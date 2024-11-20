@@ -10,8 +10,8 @@ import (
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 )
 
-func NewCollector() Collector {
-	return &CollectorImpl{
+func NewCollector() *Collector {
+	return &Collector{
 		executeCommand: executeIostat,
 	}
 }
@@ -20,11 +20,11 @@ func executeIostat() ([]byte, error) {
 	return exec.Command("iostat", "-d").Output()
 }
 
-type CollectorImpl struct {
+type Collector struct {
 	executeCommand func() ([]byte, error)
 }
 
-func (d *CollectorImpl) Collect() (*core.DiskIO, error) {
+func (d *Collector) Collect() (*core.DiskIO, error) {
 	output, err := d.executeCommand()
 	if err != nil {
 		return nil, err

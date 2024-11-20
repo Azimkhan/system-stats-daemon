@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "./;pb";
+
+import "google/protobuf/timestamp.proto";
+
+message SystemStatsResponse {
+  repeated CPULoadAverage cpuLoadAverage = 1;
+  repeated DiskLoad diskLoad = 2;
+  google.protobuf.Timestamp timestamp = 99;
+}
+
+message CPULoadAverage {
+  uint32 minutesAgo = 1;
+  float averageLoad = 2;
+}
+
+message DiskLoad {
+  string device = 1;
+  float transactionsPerSecond = 2;
+  float throughput = 3;
+}
+
+message EmptyRequest {}
+
+
+service SystemStatsService {
+  rpc GetSystemStats(EmptyRequest) returns (stream SystemStatsResponse) {}
+}
