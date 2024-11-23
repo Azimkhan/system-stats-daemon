@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,8 @@ import (
 	"time"
 
 	"github.com/Azimkhan/system-stats-daemon/internal/app"
+	"github.com/Azimkhan/system-stats-daemon/internal/config"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 	"github.com/spf13/viper"
 )
 
@@ -20,8 +23,12 @@ func init() {
 func main() {
 	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Printf("Error reading config, %v\n", err)
-		return
+		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
+			fmt.Println("Config file not found, using defaults")
+		} else {
+			fmt.Printf("Error reading config, %v\n", err)
+			return
+		}
 	}
 
 	var addr string
@@ -39,7 +46,19 @@ func main() {
 	}
 
 	log.Printf("Connecting to %s\n", addr)
-	application, err := app.NewClientApp(addr, connTimeout)
+	logger, err := logging.NewLogger(&config.LoggingConfig{
+		Level:  "info",
+		Format: "text",
+	})
+	if err != nil {
+		fmt.Printf("Error creating logger, %v\n", err)
+		return
+	}
+	application, err := app.NewClientApp(addr, connTimeout, logger)
+	if err != nil {
+		fmt.Printf("Error creating application, %v\n", err)
+		return
+	}
 	defer func() {
 		err := application.Close()
 		if err != nil {
@@ -47,12 +66,8 @@ func main() {
 			return
 		}
 
-		log.Println("Application finished.")
+		logger.Info("Application finished.")
 	}()
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -66,10 +81,10 @@ func main() {
 
 	select {
 	case <-sigC:
-		log.Println("Interrupted by signal")
+		logger.Info("Interrupted by signal")
 	case err := <-appErr:
 		if err != nil {
-			fmt.Printf("Error running application, %v\n", err)
+			logger.Error("Error running application, %v\n", "error", err)
 		}
 	}
 	cancel()

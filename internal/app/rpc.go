@@ -3,12 +3,12 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"github.com/Azimkhan/system-stats-daemon/internal/core/service"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 )
 
 var ErrNoStats = errors.New("no stats available")
@@ -19,6 +19,7 @@ type RPCHandler struct {
 	service  *service.StatService
 	delay    time.Duration
 	interval time.Duration
+	log      logging.Logger
 }
 
 func NewRPCHandler(
@@ -26,12 +27,14 @@ func NewRPCHandler(
 	service *service.StatService,
 	delay time.Duration,
 	interval time.Duration,
+	logger logging.Logger,
 ) *RPCHandler {
 	return &RPCHandler{
 		ctx:      ctx,
 		service:  service,
 		delay:    delay,
 		interval: interval,
+		log:      logger.With("service", "gRPC"),
 	}
 }
 
@@ -39,6 +42,7 @@ func (s *RPCHandler) GetSystemStats(
 	_ *pb.EmptyRequest,
 	server pb.SystemStatsService_GetSystemStatsServer,
 ) error {
+	s.log.Debug("client connected", "method", "GetSystemStats")
 	// Initial delay
 	time.Sleep(s.delay)
 
@@ -54,13 +58,12 @@ func (s *RPCHandler) GetSystemStats(
 	for {
 		select {
 		case <-server.Context().Done():
-			fmt.Println("client done")
+			s.log.Debug("client disconnected")
 			return nil
 		case <-s.ctx.Done():
-			fmt.Println("server done")
+			s.log.Debug("server shutting down")
 			return nil
 		case <-ticker.C:
-			fmt.Println("sending stats")
 			if err := s.sendStats(server); err != nil {
 				return err
 			}
@@ -69,6 +72,7 @@ func (s *RPCHandler) GetSystemStats(
 }
 
 func (s *RPCHandler) sendStats(server pb.SystemStatsService_GetSystemStatsServer) error {
+	s.log.Debug("sending stats")
 	stats, err := s.service.GetStats()
 	if err != nil {
 		return err

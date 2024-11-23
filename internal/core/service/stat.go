@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"github.com/Azimkhan/system-stats-daemon/internal/core/diskio"
 	"github.com/Azimkhan/system-stats-daemon/internal/core/loadaverage"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 )
 
 type StatType string
@@ -24,6 +24,7 @@ type StatService struct {
 	fillers         []StatFiller
 	rwMutex         *sync.RWMutex
 	collectInterval time.Duration
+	log             logging.Logger
 }
 
 func getFiller(statType string) (StatFiller, error) {
@@ -37,7 +38,7 @@ func getFiller(statType string) (StatFiller, error) {
 	}
 }
 
-func NewStatService(stats []string, collectInterval time.Duration) (*StatService, error) {
+func NewStatService(stats []string, collectInterval time.Duration, logger logging.Logger) (*StatService, error) {
 	fillers := make([]StatFiller, 0, len(stats))
 	for _, stat := range stats {
 		filler, err := getFiller(stat)
@@ -50,19 +51,23 @@ func NewStatService(stats []string, collectInterval time.Duration) (*StatService
 		fillers:         fillers,
 		rwMutex:         &sync.RWMutex{},
 		collectInterval: collectInterval,
+		log:             logger.With("service", "stat"),
 	}, nil
 }
 
 // Run periodically collects stats from all fillers.
 func (s *StatService) Run(ctx context.Context) {
+	s.log.Debug("starting stat collection service")
 	ticker := time.NewTicker(s.collectInterval)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
 			s.collectStats()
-			if s.lastErr != nil {
-				fmt.Println(s.lastErr)
+			if s.lastErr == nil {
+				s.log.Debug("stats collected", "stats", s.currentStats)
+			} else {
+				s.log.Warn("failed to collect stats", "error", s.lastErr)
 			}
 		case <-ctx.Done():
 			return

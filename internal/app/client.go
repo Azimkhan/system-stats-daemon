@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -14,9 +14,10 @@ import (
 type ClientApp struct {
 	handler pb.SystemStatsServiceClient
 	conn    *grpc.ClientConn
+	log     logging.Logger
 }
 
-func NewClientApp(addr string, connTimeout time.Duration) (*ClientApp, error) {
+func NewClientApp(addr string, connTimeout time.Duration, logger logging.Logger) (*ClientApp, error) {
 	grpcClient, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -32,6 +33,7 @@ func NewClientApp(addr string, connTimeout time.Duration) (*ClientApp, error) {
 	return &ClientApp{
 		handler: handler,
 		conn:    grpcClient,
+		log:     logger,
 	}, nil
 }
 
@@ -49,7 +51,7 @@ func (c *ClientApp) Run(ctx context.Context) error {
 			return err
 		}
 		// print received stats
-		fmt.Printf("Received:\n%v\n", resp)
+		c.log.Info("message received", "message", resp)
 	}
 }
 
