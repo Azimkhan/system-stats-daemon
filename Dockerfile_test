@@ -1,5 +1,5 @@
 FROM ubuntu:24.04
-RUN apt update && apt install -y curl gcc
+RUN apt update && apt install -y curl gcc sysstat
 
 # install go 1.23
 ARG GO_VERSION=1.23.3

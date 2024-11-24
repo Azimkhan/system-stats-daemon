@@ -4,12 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
 	"log"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
 	"github.com/Azimkhan/system-stats-daemon/internal/app"
 	"github.com/Azimkhan/system-stats-daemon/internal/config"
 	"github.com/Azimkhan/system-stats-daemon/internal/logging"
