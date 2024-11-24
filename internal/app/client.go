@@ -53,7 +53,7 @@ func (c *ClientApp) Run(ctx context.Context) error {
 			return err
 		}
 		// print received stats
-		c.log.Info("message received", "message", resp)
+		c.log.Info("data received", "data", resp)
 	}
 }
 
