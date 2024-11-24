@@ -25,4 +25,15 @@ test:
 		exit 1; \
 	fi
 
-.PHONY: test test-docker build generate test-local
+integration-test:
+	@if docker compose -f deployment/docker-compose-integration-test.yaml up --build --exit-code-from integration-test; then \
+		echo "Integration tests passed"; \
+		docker compose -f deployment/docker-compose-integration-test.yaml down; \
+		exit 0; \
+	else \
+		echo "Integration tests failed"; \
+		docker compose -f deployment/docker-compose-integration-test.yaml down; \
+		exit 1; \
+	fi
+
+.PHONY: test test-docker build generate test-local integration-test

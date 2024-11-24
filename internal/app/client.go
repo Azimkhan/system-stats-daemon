@@ -11,13 +11,21 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+type GetSystemStatsResponseHandler func(*pb.SystemStatsResponse) error
+
 type ClientApp struct {
-	handler pb.SystemStatsServiceClient
-	conn    *grpc.ClientConn
-	log     logging.Logger
+	serviceClient pb.SystemStatsServiceClient
+	handler       GetSystemStatsResponseHandler
+	conn          *grpc.ClientConn
+	log           logging.Logger
 }
 
-func NewClientApp(addr string, connTimeout time.Duration, logger logging.Logger) (*ClientApp, error) {
+func NewClientApp(
+	addr string,
+	connTimeout time.Duration,
+	handler GetSystemStatsResponseHandler,
+	logger logging.Logger,
+) (*ClientApp, error) {
 	grpcClient, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -29,17 +37,18 @@ func NewClientApp(addr string, connTimeout time.Duration, logger logging.Logger)
 		return nil, err
 	}
 
-	handler := pb.NewSystemStatsServiceClient(grpcClient)
+	serviceClient := pb.NewSystemStatsServiceClient(grpcClient)
 	return &ClientApp{
-		handler: handler,
-		conn:    grpcClient,
-		log:     logger,
+		serviceClient: serviceClient,
+		handler:       handler,
+		conn:          grpcClient,
+		log:           logger,
 	}, nil
 }
 
 func (c *ClientApp) Run(ctx context.Context) error {
 	c.log.Info("getting system stats")
-	stream, err := c.handler.GetSystemStats(ctx, &pb.EmptyRequest{})
+	stream, err := c.serviceClient.GetSystemStats(ctx, &pb.EmptyRequest{})
 	if err != nil {
 		return err
 	}
@@ -53,7 +62,9 @@ func (c *ClientApp) Run(ctx context.Context) error {
 			return err
 		}
 		// print received stats
-		c.log.Info("data received", "data", resp)
+		if err := c.handler(resp); err != nil {
+			return err
+		}
 	}
 }
 

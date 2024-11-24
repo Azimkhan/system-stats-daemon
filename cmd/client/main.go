@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
 	"github.com/Azimkhan/system-stats-daemon/internal/app"
 	"github.com/Azimkhan/system-stats-daemon/internal/config"
 	"github.com/Azimkhan/system-stats-daemon/internal/logging"
@@ -31,7 +32,15 @@ func main() {
 		fmt.Printf("Error creating logger, %v\n", err)
 		return
 	}
-	application, err := app.NewClientApp(addr, connTimeout, logger)
+
+	// statsResponseHandler is a function that executes every time
+	// the client receives a response from the server.
+	statsResponseHandler := func(resp *pb.SystemStatsResponse) error {
+		logger.Info("data received", "data", resp)
+		return nil
+	}
+
+	application, err := app.NewClientApp(addr, connTimeout, statsResponseHandler, logger)
 	if err != nil {
 		logger.Error("Error creating application", "error", err)
 		return
