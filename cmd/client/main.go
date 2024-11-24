@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,37 +10,32 @@ import (
 	"time"
 
 	"github.com/Azimkhan/system-stats-daemon/internal/app"
-	"github.com/spf13/viper"
+	"github.com/Azimkhan/system-stats-daemon/internal/config"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 )
 
-func init() {
-	viper.SetDefault("addr", ":50051")
-	viper.SetDefault("connTimeout", 5*time.Second)
-}
-
 func main() {
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Printf("Error reading config, %v\n", err)
-		return
-	}
-
 	var addr string
-	err = viper.UnmarshalKey("addr", &addr)
-	if err != nil {
-		fmt.Printf("Error reading addr, %v\n", err)
-		return
-	}
-
 	var connTimeout time.Duration
-	err = viper.UnmarshalKey("connTimeout", &connTimeout)
-	if err != nil {
-		fmt.Printf("Error reading connTimeout, %v\n", err)
-		return
-	}
+
+	flag.StringVar(&addr, "addr", ":50051", "server address")
+	flag.DurationVar(&connTimeout, "connTimeout", 5*time.Second, "connection timeout")
+	flag.Parse()
 
 	log.Printf("Connecting to %s\n", addr)
-	application, err := app.NewClientApp(addr, connTimeout)
+	logger, err := logging.NewLogger(&config.LoggingConfig{
+		Level:   "info",
+		Handler: "text",
+	})
+	if err != nil {
+		fmt.Printf("Error creating logger, %v\n", err)
+		return
+	}
+	application, err := app.NewClientApp(addr, connTimeout, logger)
+	if err != nil {
+		logger.Error("Error creating application", "error", err)
+		return
+	}
 	defer func() {
 		err := application.Close()
 		if err != nil {
@@ -47,12 +43,8 @@ func main() {
 			return
 		}
 
-		log.Println("Application finished.")
+		logger.Info("Application finished.")
 	}()
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -66,10 +58,10 @@ func main() {
 
 	select {
 	case <-sigC:
-		log.Println("Interrupted by signal")
+		logger.Info("Interrupted by signal")
 	case err := <-appErr:
 		if err != nil {
-			fmt.Printf("Error running application, %v\n", err)
+			logger.Error("Error running application, %v\n", "error", err)
 		}
 	}
 	cancel()

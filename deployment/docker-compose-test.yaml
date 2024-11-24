@@ -6,4 +6,6 @@ services:
       dockerfile: Dockerfile_test
     volumes:
       - ..:/code
-    command: "go test ./internal/... -v --count=1"
+    environment:
+      - CGO_ENABLED=1
+    command: "go test -race ./internal/... -v --count=1"

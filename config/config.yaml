@@ -5,6 +5,10 @@ stream:
   initial-delay: 15s
   interval: 5s
 
+logging:
+    format: "json"
+    level: "debug"
+
 stats:
   - cpuloadavg
   - diskio

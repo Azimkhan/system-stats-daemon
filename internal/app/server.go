@@ -8,53 +8,68 @@ import (
 	"github.com/Azimkhan/system-stats-daemon/gen/systemstats/pb"
 	"github.com/Azimkhan/system-stats-daemon/internal/config"
 	"github.com/Azimkhan/system-stats-daemon/internal/core/service"
+	"github.com/Azimkhan/system-stats-daemon/internal/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-type Server struct {
-	grpcServer *grpc.Server
-	lsn        net.Listener
+type ServerApp struct {
+	ctx         context.Context
+	grpcServer  *grpc.Server
+	lsn         net.Listener
+	log         logging.Logger
+	statService *service.StatService
 }
 
-func (s *Server) Serve() error {
+func (s *ServerApp) Serve() error {
+	// run stat service
+	go func() {
+		s.statService.Run(s.ctx)
+	}()
+
+	// run gRPC server
+	s.log.Info("starting gRPC server", "addr", s.lsn.Addr().String())
 	return s.grpcServer.Serve(s.lsn)
 }
 
-func (s *Server) Stop() {
+func (s *ServerApp) Stop() {
 	s.grpcServer.Stop()
 }
 
-func NewServer(ctx context.Context, conf *config.Config) (*Server, error) {
-	// gRPC server
-	lsn, err := net.Listen("tcp", conf.Server.BindAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	collectInterval := time.Duration(float64(conf.Stream.Interval.Nanoseconds()) / 2.5)
+func NewServerApp(
+	ctx context.Context,
+	stats []string,
+	serverConfig *config.ServerConfig,
+	streamConfig *config.StreamingConfig,
+	logger logging.Logger,
+) (*ServerApp, error) {
+	collectInterval := time.Duration(float64(streamConfig.Interval.Nanoseconds()) / 2.5)
 	// create stat service
 	statService, err := service.NewStatService(
-		[]string{"cpuloadavg", "diskio"},
+		stats,
 		collectInterval,
+		logger,
 	)
 	if err != nil {
 		return nil, err
 	}
-	// run stat service
-	go func() {
-		statService.Run(ctx)
-	}()
 
-	// create and register rpc handler
-	handler := NewRPCHandler(ctx, statService, conf.Stream.InitialDelay, conf.Stream.Interval)
+	// init gRPC server
+	lsn, err := net.Listen("tcp", serverConfig.BindAddr)
+	if err != nil {
+		return nil, err
+	}
+	handler := NewRPCHandler(ctx, statService, streamConfig.InitialDelay, streamConfig.Interval, logger)
 	grpcServer := grpc.NewServer()
 	pb.RegisterSystemStatsServiceServer(grpcServer, handler)
 	reflection.Register(grpcServer)
 
-	server := &Server{
-		grpcServer: grpcServer,
-		lsn:        lsn,
+	server := &ServerApp{
+		ctx:         ctx,
+		grpcServer:  grpcServer,
+		statService: statService,
+		lsn:         lsn,
+		log:         logger,
 	}
 	return server, nil
 }
