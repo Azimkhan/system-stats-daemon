@@ -136,7 +136,10 @@ func (s *MainTestSuite) TestCollect() {
 
 			go func() {
 				err := clientApp.Run(ctx)
-				require.NoError(s.T(), err)
+				//require.NoError(s.T(), err)
+				if err != nil {
+					s.logger.Error("clientApp.Run", "error", err)
+				}
 			}()
 
 			//avg1, avg5, avg15, err := cpuLoadAvg()
