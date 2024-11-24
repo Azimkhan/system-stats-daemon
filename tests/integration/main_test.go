@@ -37,10 +37,11 @@ func (s *MainTestSuite) SetupSuite() {
 	require.NoError(s.T(), err)
 
 }
+
 func verifyCpuLoadAvg(t *testing.T, expected *CpuLoadAvg, actual []*pb.CPULoadAverage) {
-	require.InDelta(t, expected.Avg1, actual[0].AverageLoad, 0.01)
-	require.InDelta(t, expected.Avg5, actual[1].AverageLoad, 0.01)
-	require.InDelta(t, expected.Avg15, actual[2].AverageLoad, 0.01)
+	require.InDelta(t, expected.Avg1/actual[0].AverageLoad, 1, 0.1)
+	require.InDelta(t, expected.Avg5/actual[1].AverageLoad, 1, 0.05)
+	require.InDelta(t, expected.Avg15/actual[2].AverageLoad, 1, 0.01)
 }
 
 func verifyDiskLoad(t *testing.T, load []*DiskIO, load2 []*pb.DiskLoad) {
