@@ -38,10 +38,12 @@ func NewClientApp(addr string, connTimeout time.Duration, logger logging.Logger)
 }
 
 func (c *ClientApp) Run(ctx context.Context) error {
+	c.log.Info("getting system stats")
 	stream, err := c.handler.GetSystemStats(ctx, &pb.EmptyRequest{})
 	if err != nil {
 		return err
 	}
+	c.log.Info("stream opened")
 	for {
 		resp, err := stream.Recv()
 		if ctx.Err() != nil && errors.Is(ctx.Err(), context.Canceled) {

@@ -64,7 +64,7 @@ func NewLogger(conf *config.LoggingConfig) (Logger, error) {
 
 	// determine handler
 	var handler slog.Handler
-	switch conf.Format {
+	switch conf.Handler {
 	case "json":
 		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: level,

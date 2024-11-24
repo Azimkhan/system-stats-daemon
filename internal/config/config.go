@@ -11,8 +11,8 @@ import (
 )
 
 type LoggingConfig struct {
-	Level  string // "debug", "info", "warn", "error"
-	Format string // "json" or "text"
+	Level   string // "debug", "info", "warn", "error"
+	Handler string // "json" or "text"
 }
 type ServerConfig struct {
 	BindAddr string `mapstructure:"bind-addr"`
@@ -26,6 +26,7 @@ type Config struct {
 	Server  *ServerConfig
 	Stream  *StreamingConfig
 	Logging *LoggingConfig
+	Stats   []string
 }
 
 func init() {
@@ -34,7 +35,7 @@ func init() {
 	viper.SetDefault("stream.initial-delay", 15*time.Second)
 	viper.SetDefault("server.bind-addr", ":50051")
 	viper.SetDefault("logging.level", "info")
-	viper.SetDefault("logging.Format", "json")
+	viper.SetDefault("logging.handler", "json")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")

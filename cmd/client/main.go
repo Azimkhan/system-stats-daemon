@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,43 +12,20 @@ import (
 	"github.com/Azimkhan/system-stats-daemon/internal/app"
 	"github.com/Azimkhan/system-stats-daemon/internal/config"
 	"github.com/Azimkhan/system-stats-daemon/internal/logging"
-	"github.com/spf13/viper"
 )
 
-func init() {
-	viper.SetDefault("addr", ":50051")
-	viper.SetDefault("connTimeout", 5*time.Second)
-}
-
 func main() {
-	err := viper.ReadInConfig()
-	if err != nil {
-		if errors.As(err, &viper.ConfigFileNotFoundError{}) {
-			fmt.Println("Config file not found, using defaults")
-		} else {
-			fmt.Printf("Error reading config, %v\n", err)
-			return
-		}
-	}
-
 	var addr string
-	err = viper.UnmarshalKey("addr", &addr)
-	if err != nil {
-		fmt.Printf("Error reading addr, %v\n", err)
-		return
-	}
-
 	var connTimeout time.Duration
-	err = viper.UnmarshalKey("connTimeout", &connTimeout)
-	if err != nil {
-		fmt.Printf("Error reading connTimeout, %v\n", err)
-		return
-	}
+
+	flag.StringVar(&addr, "addr", ":50051", "server address")
+	flag.DurationVar(&connTimeout, "connTimeout", 5*time.Second, "connection timeout")
+	flag.Parse()
 
 	log.Printf("Connecting to %s\n", addr)
 	logger, err := logging.NewLogger(&config.LoggingConfig{
-		Level:  "info",
-		Format: "text",
+		Level:   "info",
+		Handler: "text",
 	})
 	if err != nil {
 		fmt.Printf("Error creating logger, %v\n", err)
@@ -56,7 +33,7 @@ func main() {
 	}
 	application, err := app.NewClientApp(addr, connTimeout, logger)
 	if err != nil {
-		fmt.Printf("Error creating application, %v\n", err)
+		logger.Error("Error creating application", "error", err)
 		return
 	}
 	defer func() {
