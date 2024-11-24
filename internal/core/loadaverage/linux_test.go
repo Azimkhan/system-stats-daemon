@@ -1,32 +1,33 @@
-//go:build darwin
+//go:build linux
 
-package load_average
+package loadaverage
 
 import (
+	"testing"
+
 	"github.com/Azimkhan/system-stats-daemon/internal/core"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestLoadAverageCollector_Collect(t *testing.T) {
-	collector := LoadAverageCollectorImpl{
-		command: func() ([]byte, error) {
-			return []byte("{ 2.96 4.09 3.86 }\n"), nil
+	collector := Collector{
+		executeCommand: func() ([]byte, error) {
+			return []byte("0.15 0.11 0.09 1/411 3200877\n"), nil
 		},
 	}
 	expected := &core.CPULoadAverage{
-		Rows: []core.CPULoadAverageRow{
+		Rows: []*core.CPULoadAverageRow{
 			{
 				MinutesAgo: 1,
-				Value:      2.96,
+				Value:      0.15,
 			},
 			{
 				MinutesAgo: 5,
-				Value:      4.09,
+				Value:      0.11,
 			},
 			{
 				MinutesAgo: 15,
-				Value:      3.86,
+				Value:      0.09,
 			},
 		},
 	}
