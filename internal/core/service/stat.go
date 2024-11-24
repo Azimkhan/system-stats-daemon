@@ -61,6 +61,8 @@ func (s *StatService) Run(ctx context.Context) {
 	ticker := time.NewTicker(s.collectInterval)
 	defer ticker.Stop()
 	for {
+		// collect stats immediately and then periodically
+		s.collectStats()
 		select {
 		case <-ticker.C:
 			s.collectStats()

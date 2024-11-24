@@ -20,7 +20,7 @@ jobs:
         with:
           version: v1.61
 
-  test:
+  unit-tests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -35,3 +35,19 @@ jobs:
       - run: go version
       - name: Run tests
         run: go test ./... --count=1
+
+  integrations-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.2'
+      - run: go version
+      - name: Run tests
+        run: go test -race -v ./tests/... --count=1
